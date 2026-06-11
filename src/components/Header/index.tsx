@@ -4,9 +4,50 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import logo from "../../../public/images/logo/logo.svg";
 import DropDown from "./DropDown";
 import menuData from "./menuData";
+
+// Custom Logo Component: Ryan Price + Robot Head
+const RyanPriceRobotLogo = () => {
+  return (
+    <div className="flex items-center gap-2">
+      {/* Robot Head SVG */}
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-8 w-8"
+      >
+        <rect x="6" y="4" width="12" height="14" rx="3" fill="url(#robotGradient)" />
+        <circle cx="9" cy="9" r="1.5" fill="white" />
+        <circle cx="15" cy="9" r="1.5" fill="white" />
+        <rect x="10" y="12" width="4" height="2" rx="1" fill="white" />
+        <rect x="4" y="14" width="3" height="2" rx="0.5" fill="url(#robotGradient)" />
+        <rect x="17" y="14" width="3" height="2" rx="0.5" fill="url(#robotGradient)" />
+        <path
+          d="M12 2 L12 4 M8 2 L8 4 M16 2 L16 4"
+          stroke="url(#robotGradient)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <rect x="11" y="17" width="2" height="2" fill="url(#robotGradient)" />
+        <defs>
+          <linearGradient id="robotGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#60A5FA" />
+            <stop stopColor="#A855F7" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {/* Ryan Price Text */}
+      <span className="text-xl font-semibold tracking-tight text-white">
+        Ryan Price
+      </span>
+    </div>
+  );
+};
 
 const Header = () => {
   const [navigationOpen, setNavigationOpen] = useState(false);
@@ -27,7 +68,8 @@ const Header = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", handleStickyMenu);
-  });
+    return () => window.removeEventListener("scroll", handleStickyMenu);
+  }, []);
 
   return (
     <>
@@ -41,7 +83,7 @@ const Header = () => {
         <div className="relative mx-auto max-w-[1170px] items-center justify-between px-4 sm:px-8 lg:flex xl:px-0">
           <div className="flex w-full items-center justify-between lg:w-1/4">
             <Link href="/">
-              <Image src={logo} alt="Logo" width={164} height={36} />
+              <RyanPriceRobotLogo />
             </Link>
 
             <button
@@ -123,23 +165,23 @@ const Header = () => {
               {session ? (
                 <>
                   <p>{session?.user?.name}</p>
-                  <button
+                  {/* <button
                     aria-label="Sign Out button"
                     onClick={() => signOut()}
                     className="text-sm text-white hover:text-opacity-75"
                   >
                     Sign Out
-                  </button>
+                  </button> */}
                 </>
               ) : (
                 <>
-                  <Link
+                  {/* <Link
                     href="/auth/signin"
                     className="text-sm text-white hover:text-opacity-75"
                   >
                     Sign In
-                  </Link>
-                  <Link
+                  </Link> */}
+                  {/* <Link
                     href="/auth/signup"
                     className="button-border-gradient hover:button-gradient-hover relative flex items-center gap-1.5 rounded-lg px-4.5 py-2 text-sm text-white shadow-button hover:shadow-none"
                   >
@@ -157,7 +199,7 @@ const Header = () => {
                         fill="white"
                       />
                     </svg>
-                  </Link>
+                  </Link> */}
                 </>
               )}
             </div>
