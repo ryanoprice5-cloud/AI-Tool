@@ -1,8 +1,8 @@
 import Breadcrumb from '@/components/Breadcrumb';
-import { getPost, imageBuilder } from '@/sanity/sanity-utils';
-import { PortableText } from '@portabletext/react';
+import { blogPosts } from '@/data/blog-posts';
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { RelatedArticles } from './_components/related-articles';
 import { SharePost } from './_components/share-post';
 
@@ -10,20 +10,22 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// Helper function to get post by slug
+const getPostBySlug = (slug: string) => {
+  return blogPosts.find((post) => post.slug === slug);
+};
+
 export async function generateMetadata(props: Props) {
   const params = await props.params;
   const { slug } = params;
-  const post = await getPost(slug);
-  const siteURL = process.env.SITE_URL;
-  const siteName = process.env.SITE_NAME;
-  const authorName = process.env.AUTHOR_NAME;
+  const post = getPostBySlug(slug);
+  const siteURL = process.env.SITE_URL || 'https://example.com';
+  const siteName = process.env.SITE_NAME || 'AI Tool';
 
   if (post) {
     return {
       title: `${post.title || 'Single Post Page'} | ${siteName}`,
       description: `${post.metadata?.slice(0, 136)}...`,
-      author: authorName,
-
       robots: {
         index: true,
         follow: true,
@@ -36,15 +38,14 @@ export async function generateMetadata(props: Props) {
           'max-snippet': -1,
         },
       },
-
       openGraph: {
         title: `${post.title} | ${siteName}`,
         description: post.metadata,
-        url: `${siteURL}/blog/${post?.slug?.current}`,
+        url: `${siteURL}/blog/${post.slug}`,
         siteName: siteName,
         images: [
           {
-            url: imageBuilder(post.mainImage).url(),
+            url: post.mainImage || '/images/blog/default.jpg',
             width: 1800,
             height: 1600,
             alt: post.title,
@@ -53,15 +54,12 @@ export async function generateMetadata(props: Props) {
         locale: 'en_US',
         type: 'article',
       },
-
       twitter: {
         card: 'summary_large_image',
         title: `${post.title} | ${siteName}`,
         description: `${post.metadata?.slice(0, 136)}...`,
-        creator: `@${authorName}`,
-        site: `@${siteName}`,
-        images: [imageBuilder(post?.mainImage).url()],
-        url: `${siteURL}/blog/${post?.slug?.current}`,
+        images: [post.mainImage || '/images/blog/default.jpg'],
+        url: `${siteURL}/blog/${post.slug}`,
       },
     };
   } else {
@@ -75,7 +73,11 @@ export async function generateMetadata(props: Props) {
 export default async function BlogDetails(props: Props) {
   const params = await props.params;
   const { slug } = params;
-  const post = await getPost(slug);
+  const post = getPostBySlug(slug);
+
+  if (!post) {
+    notFound();
+  }
 
   return (
     <>
@@ -84,9 +86,10 @@ export default async function BlogDetails(props: Props) {
       <section className='pt-20 pb-17.5 lg:pt-25 lg:pb-22.5 xl:pb-27.5'>
         <div className='relative mx-auto mb-10 aspect-97/44 w-full max-w-[1170px] overflow-hidden rounded-2xl px-4 sm:px-8 md:rounded-3xl xl:px-0'>
           <Image
-            src={imageBuilder(post?.mainImage).url()}
+            src={post.mainImage || '/images/blog/default.jpg'}
             alt={post.title}
             fill
+            className='object-cover'
           />
         </div>
 
@@ -125,7 +128,7 @@ export default async function BlogDetails(props: Props) {
                   </svg>
 
                   <Link
-                    href={`/blog/author/${post?.author?.slug?.current}`}
+                    href={`/blog/author/${post?.author?.name?.toLowerCase().replace(/\s+/g, '-')}`}
                     className='text-sm font-medium'
                   >
                     {post?.author?.name}
@@ -148,11 +151,13 @@ export default async function BlogDetails(props: Props) {
                   </svg>
 
                   <span className='text-sm font-medium'>
-                    {new Date(post?.publishedAt!)
-                      .toDateString()
-                      .split(' ')
-                      .slice(1)
-                      .join(' ')}
+                    {post?.publishedAt
+                      ? new Date(post.publishedAt)
+                          .toDateString()
+                          .split(' ')
+                          .slice(1)
+                          .join(' ')
+                      : 'Recent'}
                   </span>
                 </div>
               </div>
@@ -162,14 +167,15 @@ export default async function BlogDetails(props: Props) {
               {post?.title}
             </h1>
 
-            <div className='blog-details mb-12'>
-              <PortableText value={post?.body || []} />
-            </div>
+            <div 
+              className='blog-details mb-12 prose max-w-none'
+              dangerouslySetInnerHTML={{ __html: post?.body || '' }}
+            />
 
             <SharePost title={post?.title} description={post?.metadata} />
           </div>
 
-          <RelatedArticles />
+          <RelatedArticles currentSlug={post.slug} />
         </div>
       </section>
     </>

@@ -1,4 +1,3 @@
-import { imageBuilder } from "@/sanity/sanity-utils";
 import { Blog } from "@/types/blog";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,10 +9,10 @@ const SingleBlog = ({ blog }: { blog: Blog }) => {
     <div className='wow fadeInUp group relative isolate'>
       <div className='relative mb-6 h-[222px] w-full overflow-hidden rounded-xl'>
         <Image
-          src={imageBuilder(mainImage).url()}
+          src={mainImage || '/images/blog/default.jpg'}
           alt={title}
           fill
-          className='w-full scale-100 duration-500 ease-linear group-hover:scale-125'
+          className='w-full scale-100 duration-500 ease-linear group-hover:scale-125 object-cover'
         />
       </div>
 
@@ -30,7 +29,7 @@ const SingleBlog = ({ blog }: { blog: Blog }) => {
 
       <h3>
         <Link
-          href={`/blog/${slug.current}`}
+          href={`/blog/${slug}`}
           className='line-clamp-2 text-xl font-semibold text-white duration-300 ease-in hover:opacity-80'
         >
           <span className='absolute inset-0' aria-hidden></span>
@@ -60,7 +59,7 @@ const SingleBlog = ({ blog }: { blog: Blog }) => {
           </svg>
 
           <Link
-            href={`/blog/author/${author?.slug?.current}`}
+            href={`/blog/author/${author?.name?.toLowerCase().replace(/\s+/g, '-')}`}
             className='text-sm font-medium'
           >
             {author?.name}
