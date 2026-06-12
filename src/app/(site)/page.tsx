@@ -12,7 +12,7 @@ import { Metadata } from "next";
 import { integrations } from "../../../integrations.config";
 
 export const metadata: Metadata = {
-  title: "AI Tool - Next.js Template for AI Tools",
+  title: "Ryan's AI Tool - Nextjs training page",
   description: "This is Home for AI Tool",
   // other metadata
 };
